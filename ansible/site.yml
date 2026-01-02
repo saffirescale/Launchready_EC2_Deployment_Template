@@ -1,0 +1,27 @@
+- hosts: ec2
+  become: yes
+  roles:
+    - base_ec2
+  tasks:
+    - name: Copy deploy_or_rollback.sh to EC2
+      copy:
+        src: ../scripts/deploy_or_rollback.sh
+        dest: /usr/local/bin/deploy_or_rollback.sh
+        mode: '0755'
+
+    - name: Copy healthcheck.sh to EC2
+      copy:
+        src: ../scripts/healthcheck.sh
+        dest: /usr/local/bin/healthcheck.sh
+        mode: '0755'
+
+    - name: Copy Nginx app.conf
+      copy:
+        src: ../nginx/app.conf
+        dest: /etc/nginx/conf.d/app.conf
+        mode: '0644'
+
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded

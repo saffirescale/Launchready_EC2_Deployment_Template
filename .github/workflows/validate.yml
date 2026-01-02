@@ -1,0 +1,46 @@
+name: App CI/CD
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }} -t ${{ secrets.DOCKERHUB_USERNAME }}/myapp:latest .
+
+      - name: Push Docker image (commit tag)
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
+
+      - name: Push Docker image (latest tag)
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:latest
+
+      - name: Deploy to EC2
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+          KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          echo "$KEY" > key.pem
+          chmod 600 key.pem
+          ssh -o StrictHostKeyChecking=no -i key.pem $USER@$HOST '
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
+            # Custom script to update Nginx config and reload app
+            sudo ./deploy_or_rollback.sh ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
+          '
+          rm key.pem

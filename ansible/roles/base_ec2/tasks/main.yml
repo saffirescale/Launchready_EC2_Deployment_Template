@@ -1,0 +1,52 @@
+- name: Update OS
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Install base packages
+  apt:
+    name:
+      - docker.io
+      - nginx
+    state: present
+
+- name: Enable Docker
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+
+- name: Create persistent directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /data
+    - /opt/apps
+    - /var/log/apps
+
+- name: Mount persistent data volume
+  mount:
+    path: /data
+    src: /dev/xvdf
+    fstype: ext4
+    state: mounted
+
+- name: Remove extra nginx configs
+  shell: rm -f /etc/nginx/sites-enabled/*.conf
+  args:
+    warn: false
+
+- name: Deploy nginx default config
+  template:
+    src: nginx_default.conf.j2
+    dest: /etc/nginx/sites-available/default
+  notify: Reload nginx
+
+- name: Enable nginx default site
+  file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+    force: yes
