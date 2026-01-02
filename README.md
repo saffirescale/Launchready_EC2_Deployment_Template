@@ -1,76 +1,151 @@
-# CloudGuard – AWS Cost & Stability Audit
+# LaunchReady – Secure EC2 Deployment Baseline
 
-CloudGuard is a **short, focused AWS audit** designed to help startups and small teams
-understand where their cloud money is going and identify stability risks —
-**without modifying or deleting any resources**.
+LaunchReady is a **safe, minimal, and production-ready AWS EC2 foundation** designed for startups, MVPs, and teams that want a reliable cloud setup without unnecessary complexity.
 
-This repository contains the **methodology and reference implementation**
-used during CloudGuard engagements by **Saffire Scale**.
+It provides a **clean starting point** for running applications on AWS with strong emphasis on:
+- Safety
+- Recoverability
+- Clear ownership
+- Cost control
 
----
-
-## What CloudGuard Is
-
-✔ A read-only AWS cost & stability audit  
-✔ Consultant-led (not a SaaS tool)  
-✔ Safe to run on production accounts  
-✔ Delivers clear, actionable recommendations in 3–5 days  
+Application code is intentionally **not included**.
 
 ---
 
-## What CloudGuard Is NOT
+## What LaunchReady Provides
 
-✖ Not an automated cleanup tool  
-✖ Not a FinOps platform  
-✖ Not long-term monitoring software  
-✖ Not a replacement for architecture redesign  
+### Infrastructure Safety
+- Dedicated EC2 instance
+- Static public IP (Elastic IP)
+- Persistent storage independent of server lifecycle
+- Controlled network access (firewall rules)
 
----
+### Operational Stability
+- Predictable server configuration
+- No hidden automation
+- No “magic scripts”
+- Fully auditable setup
 
-## Problems CloudGuard Solves
-
-As AWS usage grows, teams often face:
-
-- Increasing bills without clear attribution
-- Stopped or idle resources still incurring cost
-- Lack of visibility into system health
-- Reactive incident handling
-
-CloudGuard provides **clarity first**, before scaling further.
-
----
-
-## Audit Coverage (Typical)
-
-CloudGuard reviews the following areas:
-
-- EC2 instances (running / stopped)
-- Unattached EBS volumes
-- Load balancers (existence & exposure)
-- RDS instances (active / stopped)
-- Basic CloudWatch visibility
-- High-level cost usage patterns
-- Checks EKS, ECR, DB, S3.
-
-> Coverage may vary slightly based on the AWS account and scope agreed.
+### Clear Boundaries
+- Infrastructure and base OS are managed
+- Application logic remains client-owned
+- No vendor lock-in
 
 ---
 
-## Safety & Access Model (IMPORTANT)
+## Key Features
 
-CloudGuard operates with **read-only IAM access**.
+### 🔐 Security-First by Default
+- SSH access only via key-based authentication
+- Firewall rules restricted to required ports only
+- Application ports are never exposed directly
+- HTTPS supported when a domain is ready (optional)
 
-- No resources are modified automatically
-- No deletions are performed without approval
-- All findings are shared before any action
+### 💾 Data Safety
+- Application data stored on a **separate persistent volume**
+- Data survives:
+  - EC2 stop/start
+  - EC2 replacement
+- Clear recovery steps documented
 
-### Required IAM Permissions (Read-only)
-```json
-ec2:Describe*
-elasticloadbalancing:Describe*
-rds:Describe*
-cloudwatch:Describe*
-ce:GetCostAndUsage
-```
+### 🔁 Recovery & Continuity
+- If the server is stopped → no action needed
+- If the server is replaced → data and IP can be reattached
+- Recovery process is documented and repeatable
 
+### 🧱 Simplicity Over Complexity
+- No Kubernetes
+- No auto-scaling surprises
+- No opaque CI/CD
+- Easy to understand for any DevOps team
 
+---
+
+## What This Setup Is Ideal For
+
+- Early-stage startups
+- MVPs going live for the first time
+- Internal tools
+- SaaS products in early growth
+- Teams that value control over abstraction
+
+---
+
+## What This Setup Is *Not*
+
+To avoid misunderstandings, this setup is **not**:
+
+- A Platform-as-a-Service (PaaS)
+- A zero-downtime multi-region system
+- An auto-scaling architecture
+- A fully managed application runtime
+
+These can be added later **when the business requires it**.
+
+---
+
+## HTTPS & Domains
+
+- HTTPS is supported via industry-standard certificates
+- Enabled only when:
+  - A domain is available
+  - DNS points to the server
+- Certificates auto-renew once enabled
+
+HTTPS is **optional**, not forced.
+
+---
+
+## Transparency & Ownership
+
+### What You Own
+- AWS account
+- EC2 instance
+- Data volume
+- Application code
+- Domain & DNS
+
+### What This Setup Ensures
+- Your data is not locked to a specific server
+- Your infrastructure can be handed over to any DevOps team
+- Your system can evolve without rework
+
+---
+
+## Operational Philosophy
+
+> “Start simple. Make it safe. Scale only when needed.”
+
+This foundation is designed to:
+- Reduce launch risk
+- Avoid over-engineering
+- Keep monthly cloud costs predictable
+- Enable future growth without throwing away work
+
+---
+
+## Documentation & Handover
+
+All operational knowledge is documented:
+- Initial setup
+- Day-to-day operation
+- Server restart scenarios
+- Disaster recovery steps
+
+No tribal knowledge required.
+
+---
+
+## Status
+
+**Stable baseline**  
+Designed to be used as-is.
+
+Enhancements are made **only when business needs justify them**.
+
+---
+
+## Questions?
+
+This repository is intentionally conservative.
+If you are unsure whether this setup fits your needs, that discussion should happen **before adding complexity**.
